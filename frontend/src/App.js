@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getBuildings } from "./utils/api";
 
 // Import your pages
 import AuthPage from "./pages/AuthPage";
@@ -6,12 +7,14 @@ import LandingPage from "./pages/LandingPage";
 import FloorSelectionPage from "./pages/FloorSelectionPage";
 import RoomSelectionPage from "./pages/RoomSelectionPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminBookingsTable from "./pages/AdminBookingsTable";
 
 function App() {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState("landing");
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
+  const [buildings, setBuildings] = useState([]);
 
   // Load user from localStorage on refresh
   useEffect(() => {
@@ -20,6 +23,23 @@ function App() {
       setUser(JSON.parse(storedUser));
     }
   }, []);
+
+  // Load buildings data for admin functionality
+  useEffect(() => {
+    const loadBuildings = async () => {
+      try {
+        const buildingsData = await getBuildings();
+        setBuildings(Array.isArray(buildingsData) ? buildingsData : []);
+      } catch (error) {
+        console.error('Failed to load buildings:', error);
+        setBuildings([]);
+      }
+    };
+
+    if (user) {
+      loadBuildings();
+    }
+  }, [user]);
 
   // Logout handler
   const handleLogout = () => {
@@ -79,10 +99,28 @@ function App() {
   }
 
   if (user.role === "admin") {
+    if (step === "admin-bookings") {
+      return (
+        <>
+          {greeting}
+          <AdminBookingsTable 
+            buildings={buildings} 
+            currentUser={user} 
+            onLogout={handleLogout}
+            onBack={() => setStep("admin-dashboard")}
+          />
+        </>
+      );
+    }
+    
     return (
       <>
         {greeting}
-        <AdminDashboard user={user} onLogout={handleLogout} />
+        <AdminDashboard 
+          user={user} 
+          onLogout={handleLogout}
+          onNavigateToBookings={() => setStep("admin-bookings")}
+        />
       </>
     );
   }
@@ -117,6 +155,7 @@ function App() {
           building={selectedBuilding}
           floor={selectedFloor}
           onBack={handleBackToFloors}
+          currentUser={user}
         />
       </>
     );

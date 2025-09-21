@@ -28,6 +28,12 @@ export const getFloors = async (buildingId) => {
   return unwrap(res);
 };
 
+// GET buildings
+export const getBuildings = async () => {
+  const res = await axios.get(`${API_BASE}/buildings`, authHeaders());
+  return unwrap(res);
+};
+
 // GET rooms for a floor with time filtering
 export const getRooms = async (floorId, date, startTime, endTime) => {
   const res = await axios.get(`${API_BASE}/rooms/${floorId}/availability`, {
