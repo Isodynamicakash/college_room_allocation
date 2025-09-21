@@ -45,6 +45,46 @@ const bookingSchema = new mongoose.Schema({
   purpose: {
     type: String,
     required: true
+  },
+
+  // Admin fields for enhanced booking management
+  source: {
+    type: String,
+    enum: ['user', 'admin', 'template'],
+    default: 'user'
+  },
+
+  teacher: {
+    type: String,
+    default: null
+  },
+
+  subject: {
+    type: String,
+    default: null
+  },
+
+  department: {
+    type: String,
+    enum: ['AIML', 'IT', 'AI', 'CSE CORE', 'DS'],
+    default: null
+  },
+
+  templateId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Template',
+    default: null
+  },
+
+  overrideAllowed: {
+    type: Boolean,
+    default: false
+  },
+
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
   }
 }, {
   timestamps: true // Adds createdAt and updatedAt
@@ -84,6 +124,13 @@ bookingSchema.methods.toClient = function () {
     purpose: this.purpose,
     bookedBy: bookedByObj,
     bookedByName: this.bookedByName || (bookedByObj && bookedByObj.name) || null,
+    teacher: this.teacher,
+    subject: this.subject,
+    department: this.department,
+    source: this.source,
+    overrideAllowed: this.overrideAllowed,
+    createdByAdmin: this.createdByAdmin,
+    templateId: this.templateId,
     createdAt: this.createdAt,
     updatedAt: this.updatedAt
   };

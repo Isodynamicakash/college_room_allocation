@@ -41,15 +41,20 @@ router.get('/:floorId/availability', async (req, res) => {
     const roomStatus = (floor.rooms || []).map((room) => {
       const roomBookings = bookings
         .filter((b) => b.room && b.room.toString() === room._id.toString())
-        .map((b) => ({
+        .map((b) => b.toClient ? b.toClient() : {
           _id: b._id,
           startTime: b.startTime,
           endTime: b.endTime,
           purpose: b.purpose || null,
           bookedBy: b.bookedBy
             ? { _id: b.bookedBy._id || b.bookedBy, name: b.bookedBy.name || null }
-            : null
-        }));
+            : null,
+          teacher: b.teacher,
+          subject: b.subject,
+          department: b.department,
+          source: b.source,
+          overrideAllowed: b.overrideAllowed
+        });
 
       return {
         _id: room._id,
