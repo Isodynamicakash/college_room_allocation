@@ -59,3 +59,32 @@ export const cancelBooking = async (bookingId) => {
   const res = await axios.delete(`${API_BASE}/bookings/${bookingId}`, authHeaders());
   return unwrap(res);
 };
+
+// ADMIN API ENDPOINTS
+
+// POST admin batch booking
+export const createAdminBatch = async (batchData) => {
+  const res = await axios.post(`${API_BASE}/admin/bookings/batch`, batchData, authHeaders());
+  return unwrap(res);
+};
+
+// GET admin bookings with filters
+export const getAdminBookings = async (filters = {}) => {
+  const res = await axios.get(`${API_BASE}/admin/bookings`, {
+    params: filters,
+    ...authHeaders()
+  });
+  return unwrap(res);
+};
+
+// GET admin templates
+export const getTemplates = async () => {
+  const res = await axios.get(`${API_BASE}/admin/templates`, authHeaders());
+  return unwrap(res);
+};
+
+// POST create template
+export const createTemplate = async (templateData) => {
+  const res = await axios.post(`${API_BASE}/admin/templates`, templateData, authHeaders());
+  return unwrap(res);
+};
