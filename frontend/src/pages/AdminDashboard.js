@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button, Container, Row, Col, Card } from 'react-bootstrap';
 
-function AdminDashboard({ user, onLogout }) {
+function AdminDashboard({ user, onLogout, onNavigateToBookings }) {
   return (
     <Container className="mt-4">
       <Row className="mb-4">
@@ -37,12 +37,12 @@ function AdminDashboard({ user, onLogout }) {
         <Col md={6} className="mb-3">
           <Card>
             <Card.Body>
-              <Card.Title>📊 Booking Overview</Card.Title>
+              <Card.Title>📊 Booking Management</Card.Title>
               <Card.Text>
-                View all room bookings across buildings and floors.
+                View, create, and manage room bookings across buildings and floors.
               </Card.Text>
-              <Button variant="primary" disabled>
-                Coming Soon
+              <Button variant="primary" onClick={onNavigateToBookings}>
+                Open Booking Management
               </Button>
             </Card.Body>
           </Card>

@@ -149,9 +149,21 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
     return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-[#f3f6fb]">
       <Container>
-        <Button variant="link" className="mb-3 text-primary" onClick={onBack}>
-          &larr; Back to Floors
-        </Button>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <Button variant="link" className="text-primary" onClick={onBack}>
+            &larr; Back to Floors
+          </Button>
+          
+          {currentUser?.role === 'admin' && (
+            <Button 
+              variant="outline-primary" 
+              size="sm"
+              onClick={() => window.open('/admin/bookings', '_blank')}
+            >
+              📋 Admin Booking Panel
+            </Button>
+          )}
+        </div>
 
         <h2 className="text-2xl font-bold text-primary text-center mb-2">
           {building?.name} - Floor {floor?.number}
@@ -292,14 +304,27 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
                         <strong>Booking {i + 1}</strong><br />
                         <span><strong>By:</strong> {displayName}</span><br />
                         <span><strong>Purpose:</strong> {b?.purpose || '-'}</span><br />
+                        {b?.teacher && <span><strong>Teacher:</strong> {b.teacher}</span>}<br />
+                        {b?.subject && <span><strong>Subject:</strong> {b.subject}</span>}<br />
+                        {b?.department && <span><strong>Department:</strong> {b.department}</span>}<br />
                         <span><strong>Time:</strong> {b?.startTime} – {b?.endTime}</span>
+                        {b?.source && <span className="badge bg-secondary ms-2">{b.source}</span>}
                       </div>
 
-                      {isOwner && (
-                        <Button variant="danger" size="sm" onClick={() => handleCancelBooking(b._id)}>
-                          Cancel
-                        </Button>
-                      )}
+                      <div>
+                        {/* Owner can cancel their own bookings */}
+                        {isOwner && (
+                          <Button variant="danger" size="sm" onClick={() => handleCancelBooking(b._id)} className="me-1">
+                            Cancel
+                          </Button>
+                        )}
+                        {/* Admin can delete any booking */}
+                        {currentUser?.role === 'admin' && !isOwner && (
+                          <Button variant="outline-danger" size="sm" onClick={() => handleCancelBooking(b._id)}>
+                            Delete
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   );
                 })}

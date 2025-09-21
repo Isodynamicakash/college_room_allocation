@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Booking = require('../models/booking');
+const Audit = require('../models/Audit');
 const auth = require('../middleware/auth');
 
 // POST /api/bookings — Create a new booking
@@ -11,7 +12,7 @@ router.post('/', auth, async (req, res) => {
     const userId = req.user?.id;
     const userName = req.user?.name || req.user?.fullName || null;
 
-    const { building, floor, room, date, startTime, endTime, purpose } = req.body;
+    const { building, floor, room, date, startTime, endTime, purpose, teacher, subject, department } = req.body;
 
     if (!building || !floor || !room || !date || !startTime || !endTime || !purpose || !userId) {
       return res.status(400).json({ message: 'All fields are required' });
@@ -48,7 +49,11 @@ router.post('/', auth, async (req, res) => {
       endTime,
       bookedBy: userId,
       bookedByName: userName,
-      purpose
+      purpose,
+      source: 'user', // Regular user booking
+      teacher: teacher || null,
+      subject: subject || null,
+      department: department || null
     });
 
     const populated = await Booking.findById(booking._id).populate('bookedBy', '_id name');
@@ -66,16 +71,45 @@ router.post('/', auth, async (req, res) => {
 // DELETE /api/bookings/:id — Cancel a booking
 router.delete('/:id', auth, async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(req.params.id).populate('bookedBy', '_id name');
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
     const ownerId = booking.bookedBy?.toString?.() || String(booking.bookedBy);
     const requesterId = String(req.user.id);
+    const isAdmin = req.user.role === 'admin';
 
-    if (ownerId !== requesterId) {
+    // Allow deletion if user is owner OR admin
+    if (ownerId !== requesterId && !isAdmin) {
       return res.status(403).json({ message: 'You are not authorized to cancel this booking' });
+    }
+
+    // If admin is deleting someone else's booking, create audit record
+    if (isAdmin && ownerId !== requesterId) {
+      try {
+        await Audit.create({
+          action: 'delete',
+          performedBy: req.user.id,
+          affectedUser: booking.bookedBy._id || booking.bookedBy,
+          bookingSnapshot: booking.toClient ? booking.toClient() : booking.toJSON(),
+          reason: 'Admin deletion',
+          metadata: {
+            bookingId: booking._id,
+            roomDetails: {
+              building: booking.building,
+              floor: booking.floor,
+              room: booking.room
+            }
+          },
+          ipAddress: req.ip || req.connection.remoteAddress,
+          userAgent: req.get('User-Agent')
+        });
+        console.log(`Admin ${req.user.name} deleted booking ${booking._id} owned by user ${booking.bookedBy._id}`);
+      } catch (auditErr) {
+        console.error('Failed to create audit record:', auditErr);
+        // Continue with deletion even if audit fails
+      }
     }
 
     await booking.deleteOne();

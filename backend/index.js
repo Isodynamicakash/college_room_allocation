@@ -87,6 +87,7 @@ try {
   app.use('/api/floors', require('./routes/floor'));
   app.use('/api/bookings', require('./routes/bookings')); // ✅ Confirmed route
   app.use('/api/rooms', require('./routes/availability'));
+  app.use('/api/admin', require('./routes/admin')); // ✅ Admin routes
 } catch (error) {
   console.error('Error loading routes:', error);
 }
