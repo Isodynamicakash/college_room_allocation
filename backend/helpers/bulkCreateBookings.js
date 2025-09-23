@@ -124,11 +124,23 @@ async function bulkCreateBookings(params) {
           results.conflicts++;
           
           if (forceOverride) {
-            // Delete conflicting bookings (except admin ones unless overrideAllowed)
+            // Check if we can delete all conflicting bookings
+            let canDeleteAll = true;
+            const conflictsToDelete = [];
+            
             for (const conflict of conflicts) {
               const canDelete = conflict.source !== 'admin' || conflict.overrideAllowed;
-              
               if (canDelete) {
+                conflictsToDelete.push(conflict);
+              } else {
+                canDeleteAll = false;
+                console.log(`Cannot delete protected admin booking ${conflict._id}`);
+              }
+            }
+            
+            if (canDeleteAll && conflictsToDelete.length > 0) {
+              // Delete all conflicting bookings
+              for (const conflict of conflictsToDelete) {
                 // Create audit record before deletion
                 try {
                   await Audit.create({
@@ -160,11 +172,11 @@ async function bulkCreateBookings(params) {
                 results.deleted++;
                 
                 console.log(`Deleted conflicting booking ${conflict._id} for override`);
-              } else {
-                console.log(`Skipping protected admin booking ${conflict._id}`);
-                results.skipped++;
-                continue; // Skip creating new booking for this slot
               }
+            } else {
+              // Cannot delete all conflicts, skip this booking
+              results.skipped++;
+              continue;
             }
           } else {
             // Skip this booking due to conflicts

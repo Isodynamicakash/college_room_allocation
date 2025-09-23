@@ -12,21 +12,27 @@ router.get('/:floorId/availability', async (req, res) => {
     const { date, startTime, endTime } = req.query;
     const floorId = req.params.floorId;
 
-    if (!date || !startTime || !endTime) {
-      console.warn('Missing query parameters:', { date, startTime, endTime });
-      return res.status(400).json({ message: 'Date and time range are required.' });
-    }
-
-    // Basic type validation
-    if (typeof date !== 'string' || typeof startTime !== 'string' || typeof endTime !== 'string') {
-      return res.status(400).json({ message: 'Invalid query parameter types.' });
-    }
-
     // Fetch floor and rooms
     const floor = await Floor.findById(floorId).populate('rooms');
     if (!floor) {
       console.warn('Floor not found:', floorId);
       return res.status(404).json({ message: 'Floor not found' });
+    }
+
+    // If no date/time provided, just return basic room info for filtering
+    if (!date || !startTime || !endTime) {
+      const basicRooms = (floor.rooms || []).map((room) => ({
+        _id: room._id,
+        number: room.number,
+        status: 'available', // Default for filtering
+        bookings: []
+      }));
+      return res.json(basicRooms);
+    }
+
+    // Basic type validation
+    if (typeof date !== 'string' || typeof startTime !== 'string' || typeof endTime !== 'string') {
+      return res.status(400).json({ message: 'Invalid query parameter types.' });
     }
 
     // Find overlapping bookings and populate bookedBy (_id and name)

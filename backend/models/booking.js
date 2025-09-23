@@ -131,6 +131,16 @@ bookingSchema.methods.toClient = function () {
     overrideAllowed: this.overrideAllowed,
     createdByAdmin: this.createdByAdmin,
     templateId: this.templateId,
+    // Include populated fields if available
+    building: this.building && (typeof this.building === 'object' && this.building.name)
+      ? { _id: String(this.building._id), name: this.building.name }
+      : String(this.building),
+    floor: this.floor && (typeof this.floor === 'object' && this.floor.number !== undefined)
+      ? { _id: String(this.floor._id), number: this.floor.number }
+      : String(this.floor),
+    room: this.room && (typeof this.room === 'object' && this.room.number)
+      ? { _id: String(this.room._id), number: this.room.number }
+      : String(this.room),
     createdAt: this.createdAt,
     updatedAt: this.updatedAt
   };
