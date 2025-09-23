@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-bootstrap';
 import { socket } from '../utils/socket';
 import { getRooms, bookRoom, cancelBooking } from '../utils/api';
+import { DEPARTMENTS } from '../constants/departments';
 
 function RoomSelectionPage({ building, floor, onBack, currentUser }) {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -10,7 +11,7 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
   const [rooms, setRooms] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [form, setForm] = useState({ purpose: '', startTime: '', endTime: '' });
+  const [form, setForm] = useState({ purpose: '', startTime: '', endTime: '', department: 'CSE CORE' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -115,12 +116,13 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
         date,
         startTime,
         endTime,
-        purpose
+        purpose,
+        department: form.department
       };
 
       await bookRoom(payload);
       setShowModal(false);
-      setForm({ purpose: '', startTime: '', endTime: '' });
+      setForm({ purpose: '', startTime: '', endTime: '', department: 'CSE CORE' });
       fetchRooms();
     } catch (err) {
       console.error('Booking error:', err);
@@ -340,6 +342,19 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
                     onChange={handleFormChange}
                     placeholder="Enter purpose"
                   />
+                </Form.Group>
+
+                <Form.Group className="mb-3">
+                  <Form.Label>Department</Form.Label>
+                  <Form.Select
+                    name="department"
+                    value={form.department}
+                    onChange={handleFormChange}
+                  >
+                    {DEPARTMENTS.map(dept => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </Form.Select>
                 </Form.Group>
 
                 <Form.Group className="mb-3">

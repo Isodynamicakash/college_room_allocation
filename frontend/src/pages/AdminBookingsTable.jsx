@@ -224,7 +224,10 @@ function AdminBookingsTable({ buildings, currentUser, onLogout }) {
                         <td>{booking.date}</td>
                         <td>{booking.startTime} - {booking.endTime}</td>
                         <td>
-                          {booking.building?.name || 'N/A'} - Floor {booking.floor?.number || 'N/A'} - Room {booking.room?.number || 'N/A'}
+                          {(booking.building?.name && booking.floor?.number && booking.room?.number) 
+                            ? `${booking.building.name} - Floor ${booking.floor.number} - Room ${booking.room.number}`
+                            : `Building: ${booking.building?.name || 'Unknown'} - Floor: ${booking.floor?.number || 'Unknown'} - Room: ${booking.room?.number || 'Unknown'}`
+                          }
                         </td>
                         <td>{booking.purpose}</td>
                         <td>{booking.teacher || '-'}</td>
