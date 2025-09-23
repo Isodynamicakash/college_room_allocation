@@ -18,6 +18,12 @@ router.post('/', auth, async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
+    // Prevent booking past dates
+    const today = new Date().toISOString().slice(0, 10);
+    if (date < today) {
+      return res.status(400).json({ message: 'Cannot book rooms for past dates' });
+    }
+
     const [startH, startM] = startTime.split(':').map(Number);
     const [endH, endM] = endTime.split(':').map(Number);
     if ([startH, startM, endH, endM].some((v) => Number.isNaN(v))) {

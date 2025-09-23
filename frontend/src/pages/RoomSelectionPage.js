@@ -134,8 +134,16 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
 
   const handleCancelBooking = async (bookingId) => {
     if (!bookingId) return;
-    const ok = window.confirm('Cancel this booking?');
+    
+    // Find the booking to show details in confirmation
+    const booking = selectedRoom?.bookings?.find(b => b._id === bookingId);
+    const bookingDetails = booking ? 
+      `Booking: ${booking.purpose}\nTime: ${booking.startTime} - ${booking.endTime}` : 
+      'this booking';
+      
+    const ok = window.confirm(`Are you sure you want to cancel ${bookingDetails}?`);
     if (!ok) return;
+    
     setLoading(true);
     try {
       await cancelBooking(bookingId);
@@ -177,6 +185,7 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
           <Form.Control
             type="date"
             value={date}
+            min={new Date().toISOString().slice(0, 10)}
             onChange={(e) => setDate(e.target.value)}
             className="mx-auto"
             style={{ maxWidth: '200px' }}

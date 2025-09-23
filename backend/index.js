@@ -37,6 +37,29 @@ setInterval(() => {
   });
 }, 30000);
 
+// Automated cleanup of past bookings at midnight
+const { cleanupPastBookings } = require('./helpers/cleanupPastBookings');
+
+// Function to schedule daily cleanup at midnight
+function scheduleCleanup() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0); // Next midnight
+  
+  const timeToMidnight = midnight.getTime() - now.getTime();
+  
+  console.log(`[${now.toISOString()}] Scheduling next cleanup in ${Math.round(timeToMidnight / 1000 / 60)} minutes`);
+  
+  setTimeout(() => {
+    cleanupPastBookings();
+    // Schedule next cleanup (every 24 hours)
+    setInterval(cleanupPastBookings, 24 * 60 * 60 * 1000);
+  }, timeToMidnight);
+}
+
+// Start the cleanup scheduler
+scheduleCleanup();
+
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
   maxPoolSize: 5,
