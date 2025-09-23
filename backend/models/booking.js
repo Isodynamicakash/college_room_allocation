@@ -66,7 +66,7 @@ const bookingSchema = new mongoose.Schema({
 
   department: {
     type: String,
-    enum: ['AIML', 'IT', 'AI', 'CSE CORE', 'DS'],
+    enum: ['AIML', 'IT', 'AI', 'CSE CORE', 'DS', 'CDC'],
     default: null
   },
 
