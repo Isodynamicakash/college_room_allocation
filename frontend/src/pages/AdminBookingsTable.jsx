@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Button, Form, Alert, Modal, Badge } from 'react-bootstrap';
-import { getAdminBookings, cancelBooking } from '../utils/api';
+import { getAdminBookings, cancelBooking, getFloors, getRooms } from '../utils/api';
 import { DEPARTMENTS } from '../constants/departments';
 import AdminBookingPanel from '../components/AdminBookingPanel';
 
@@ -11,11 +11,16 @@ function AdminBookingsTable({ buildings, currentUser, onLogout }) {
     page: 1,
     limit: 50,
     date: '',
+    building: '',
+    floor: '',
+    room: '',
     department: '',
     source: '',
     teacher: ''
   });
   const [pagination, setPagination] = useState({});
+  const [floors, setFloors] = useState([]);
+  const [rooms, setRooms] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [bookingToDelete, setBookingToDelete] = useState(null);
   const [showPanel, setShowPanel] = useState(false);
@@ -46,6 +51,44 @@ function AdminBookingsTable({ buildings, currentUser, onLogout }) {
       [field]: value,
       page: 1 // Reset to first page when filtering
     }));
+
+    // Handle cascading dropdown changes
+    if (field === 'building') {
+      setFloors([]);
+      setRooms([]);
+      setFilters(prev => ({ ...prev, floor: '', room: '' }));
+      if (value) {
+        fetchFloors(value);
+      }
+    } else if (field === 'floor') {
+      setRooms([]);
+      setFilters(prev => ({ ...prev, room: '' }));
+      if (value) {
+        // For rooms filter, we don't need date/time so pass null
+        fetchRooms(value);
+      }
+    }
+  };
+
+  const fetchFloors = async (buildingId) => {
+    try {
+      const floorsData = await getFloors(buildingId);
+      setFloors(Array.isArray(floorsData) ? floorsData : []);
+    } catch (error) {
+      console.error('Error fetching floors:', error);
+      setFloors([]);
+    }
+  };
+
+  const fetchRooms = async (floorId) => {
+    try {
+      // For filtering, we don't need availability check, so pass null for time params
+      const roomsData = await getRooms(floorId, null, null, null);
+      setRooms(Array.isArray(roomsData) ? roomsData : []);
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+      setRooms([]);
+    }
   };
 
   const handlePageChange = (newPage) => {
@@ -176,6 +219,61 @@ function AdminBookingsTable({ buildings, currentUser, onLogout }) {
                   onChange={(e) => handleFilterChange('teacher', e.target.value)}
                 />
               </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={3}>
+              <Form.Group className="mb-2">
+                <Form.Label>Building</Form.Label>
+                <Form.Select
+                  value={filters.building}
+                  onChange={(e) => handleFilterChange('building', e.target.value)}
+                >
+                  <option value="">All Buildings</option>
+                  {buildings.map(building => (
+                    <option key={building._id} value={building._id}>
+                      {building.name}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group className="mb-2">
+                <Form.Label>Floor</Form.Label>
+                <Form.Select
+                  value={filters.floor}
+                  onChange={(e) => handleFilterChange('floor', e.target.value)}
+                  disabled={!filters.building}
+                >
+                  <option value="">All Floors</option>
+                  {floors.map(floor => (
+                    <option key={floor._id} value={floor._id}>
+                      Floor {floor.number}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              <Form.Group className="mb-2">
+                <Form.Label>Room</Form.Label>
+                <Form.Select
+                  value={filters.room}
+                  onChange={(e) => handleFilterChange('room', e.target.value)}
+                  disabled={!filters.floor}
+                >
+                  <option value="">All Rooms</option>
+                  {rooms.map(room => (
+                    <option key={room._id} value={room._id}>
+                      Room {room.number}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={3}>
+              {/* Empty column for alignment */}
             </Col>
           </Row>
         </Card.Body>

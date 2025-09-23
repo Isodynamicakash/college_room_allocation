@@ -76,9 +76,20 @@ router.delete('/:id', auth, async (req, res) => {
       return res.status(404).json({ message: 'Booking not found' });
     }
 
-    const ownerId = booking.bookedBy?.toString?.() || String(booking.bookedBy);
+    // Handle ObjectId comparison properly
+    let ownerId;
+    if (booking.bookedBy && typeof booking.bookedBy === 'object' && booking.bookedBy._id) {
+      ownerId = String(booking.bookedBy._id);
+    } else if (booking.bookedBy) {
+      ownerId = String(booking.bookedBy);
+    } else {
+      return res.status(500).json({ message: 'Booking owner information is missing' });
+    }
+    
     const requesterId = String(req.user.id);
     const isAdmin = req.user.role === 'admin';
+
+    console.log(`Authorization check: ownerId=${ownerId}, requesterId=${requesterId}, isAdmin=${isAdmin}`);
 
     // Allow deletion if user is owner OR admin
     if (ownerId !== requesterId && !isAdmin) {
