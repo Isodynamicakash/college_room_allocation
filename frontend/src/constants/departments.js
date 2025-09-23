@@ -1,4 +1,4 @@
-export const DEPARTMENTS = ['AIML', 'IT', 'AI', 'CSE CORE', 'DS'];
+export const DEPARTMENTS = ['AIML', 'IT', 'AI', 'CSE CORE', 'DS', 'CDC'];
 
 export const DAYS_OF_WEEK = [
   { value: 0, label: 'Sunday' },

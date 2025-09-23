@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 
 function AdminDashboard({ user, onLogout, onNavigateToBookings }) {
   return (
@@ -9,7 +8,7 @@ function AdminDashboard({ user, onLogout, onNavigateToBookings }) {
         <Col>
           <h2 className="text-primary">Welcome to the Admin Dashboard</h2>
           <p>
-            Hello, <strong>{user.name}</strong>. This is where you’ll manage Excel uploads and admin features.
+            Hello, <strong>{user.name}</strong>. Manage room bookings and admin features.
           </p>
         </Col>
         <Col className="text-end">
@@ -19,29 +18,15 @@ function AdminDashboard({ user, onLogout, onNavigateToBookings }) {
         </Col>
       </Row>
 
-      <Row>
-        <Col md={6} className="mb-3">
+      <Row className="justify-content-center">
+        <Col md={8} lg={6} className="mb-3">
           <Card>
-            <Card.Body>
-              <Card.Title>📥 Excel Upload</Card.Title>
-              <Card.Text>
-                Upload weekly timetables to auto-fill room bookings.
-              </Card.Text>
-              <Button variant="primary" disabled>
-                Coming Soon
-              </Button>
-            </Card.Body>
-          </Card>
-        </Col>
-
-        <Col md={6} className="mb-3">
-          <Card>
-            <Card.Body>
+            <Card.Body className="text-center">
               <Card.Title>📊 Booking Management</Card.Title>
               <Card.Text>
                 View, create, and manage room bookings across buildings and floors.
               </Card.Text>
-              <Button variant="primary" onClick={onNavigateToBookings}>
+              <Button variant="primary" size="lg" onClick={onNavigateToBookings}>
                 Open Booking Management
               </Button>
             </Card.Body>

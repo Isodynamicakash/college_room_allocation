@@ -101,27 +101,21 @@ function App() {
   if (user.role === "admin") {
     if (step === "admin-bookings") {
       return (
-        <>
-          {greeting}
-          <AdminBookingsTable 
-            buildings={buildings} 
-            currentUser={user} 
-            onLogout={handleLogout}
-            onBack={() => setStep("admin-dashboard")}
-          />
-        </>
+        <AdminBookingsTable 
+          buildings={buildings} 
+          currentUser={user} 
+          onLogout={handleLogout}
+          onBack={() => setStep("admin-dashboard")}
+        />
       );
     }
     
     return (
-      <>
-        {greeting}
-        <AdminDashboard 
-          user={user} 
-          onLogout={handleLogout}
-          onNavigateToBookings={() => setStep("admin-bookings")}
-        />
-      </>
+      <AdminDashboard 
+        user={user} 
+        onLogout={handleLogout}
+        onNavigateToBookings={() => setStep("admin-bookings")}
+      />
     );
   }
 
