@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getBuildings } from "./utils/api";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import LanguageSelector from "./components/LanguageSelector";
 
 // Import your pages
 import AuthPage from "./pages/AuthPage";
@@ -95,27 +97,38 @@ function App() {
 
   // Render flow
   if (!user) {
-    return <AuthPage onLogin={setUser} />;
+    return (
+      <>
+        <AuthPage onLogin={setUser} />
+        <LanguageSelector />
+      </>
+    );
   }
 
   if (user.role === "admin") {
     if (step === "admin-bookings") {
       return (
-        <AdminBookingsTable 
-          buildings={buildings} 
-          currentUser={user} 
-          onLogout={handleLogout}
-          onBack={() => setStep("admin-dashboard")}
-        />
+        <>
+          <AdminBookingsTable 
+            buildings={buildings} 
+            currentUser={user} 
+            onLogout={handleLogout}
+            onBack={() => setStep("admin-dashboard")}
+          />
+          <LanguageSelector />
+        </>
       );
     }
     
     return (
-      <AdminDashboard 
-        user={user} 
-        onLogout={handleLogout}
-        onNavigateToBookings={() => setStep("admin-bookings")}
-      />
+      <>
+        <AdminDashboard 
+          user={user} 
+          onLogout={handleLogout}
+          onNavigateToBookings={() => setStep("admin-bookings")}
+        />
+        <LanguageSelector />
+      </>
     );
   }
 
@@ -124,6 +137,7 @@ function App() {
       <>
         {greeting}
         <LandingPage onSelectBuilding={handleBuildingSelect} />
+        <LanguageSelector />
       </>
     );
   }
@@ -137,6 +151,7 @@ function App() {
           onSelectFloor={handleFloorSelect}
           onBack={handleBackToBuildings}
         />
+        <LanguageSelector />
       </>
     );
   }
@@ -151,11 +166,20 @@ function App() {
           onBack={handleBackToFloors}
           currentUser={user}
         />
+        <LanguageSelector />
       </>
     );
   }
 
-  return null;
+  return <LanguageSelector />;
 }
 
-export default App;
+function AppWithProvider() {
+  return (
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
+  );
+}
+
+export default AppWithProvider;
