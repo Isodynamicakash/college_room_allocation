@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getBuildings } from "./utils/api";
+import { LanguageProvider, useTranslation } from "./contexts/LanguageContext";
+import LanguageSelector from "./components/LanguageSelector";
 
 // Import your pages
 import AuthPage from "./pages/AuthPage";
@@ -9,12 +11,13 @@ import RoomSelectionPage from "./pages/RoomSelectionPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminBookingsTable from "./pages/AdminBookingsTable";
 
-function App() {
+function AppContent() {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState("landing");
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
   const [buildings, setBuildings] = useState([]);
+  const { t } = useTranslation();
 
   // Load user from localStorage on refresh
   useEffect(() => {
@@ -75,7 +78,7 @@ function App() {
   // Greeting component
   const greeting = (
     <div style={{ position: "absolute", top: 10, right: 20, fontWeight: "bold" }}>
-      Welcome, {user?.name}
+      {t('welcome')}, {user?.name}
       <button
         onClick={handleLogout}
         style={{
@@ -88,34 +91,45 @@ function App() {
           borderRadius: "4px"
         }}
       >
-        Logout
+        {t('logout')}
       </button>
     </div>
   );
 
   // Render flow
   if (!user) {
-    return <AuthPage onLogin={setUser} />;
+    return (
+      <>
+        <AuthPage onLogin={setUser} />
+        <LanguageSelector />
+      </>
+    );
   }
 
   if (user.role === "admin") {
     if (step === "admin-bookings") {
       return (
-        <AdminBookingsTable 
-          buildings={buildings} 
-          currentUser={user} 
-          onLogout={handleLogout}
-          onBack={() => setStep("admin-dashboard")}
-        />
+        <>
+          <AdminBookingsTable 
+            buildings={buildings} 
+            currentUser={user} 
+            onLogout={handleLogout}
+            onBack={() => setStep("admin-dashboard")}
+          />
+          <LanguageSelector />
+        </>
       );
     }
     
     return (
-      <AdminDashboard 
-        user={user} 
-        onLogout={handleLogout}
-        onNavigateToBookings={() => setStep("admin-bookings")}
-      />
+      <>
+        <AdminDashboard 
+          user={user} 
+          onLogout={handleLogout}
+          onNavigateToBookings={() => setStep("admin-bookings")}
+        />
+        <LanguageSelector />
+      </>
     );
   }
 
@@ -124,6 +138,7 @@ function App() {
       <>
         {greeting}
         <LandingPage onSelectBuilding={handleBuildingSelect} />
+        <LanguageSelector />
       </>
     );
   }
@@ -137,6 +152,7 @@ function App() {
           onSelectFloor={handleFloorSelect}
           onBack={handleBackToBuildings}
         />
+        <LanguageSelector />
       </>
     );
   }
@@ -151,11 +167,20 @@ function App() {
           onBack={handleBackToFloors}
           currentUser={user}
         />
+        <LanguageSelector />
       </>
     );
   }
 
-  return null;
+  return <LanguageSelector />;
 }
 
-export default App;
+function AppWithProvider() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
+  );
+}
+
+export default AppWithProvider;
