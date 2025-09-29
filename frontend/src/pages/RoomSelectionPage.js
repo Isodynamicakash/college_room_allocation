@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Modal, Form, Alert } from 'react-bootstrap';
+import { useTranslation } from '../contexts/LanguageContext';
 import { socket } from '../utils/socket';
 import { getRooms, bookRoom, cancelBooking } from '../utils/api';
 import { DEPARTMENTS } from '../constants/departments';
 
 function RoomSelectionPage({ building, floor, onBack, currentUser }) {
+  const { t } = useTranslation();
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [filterStartTime, setFilterStartTime] = useState('08:00');
   const [filterEndTime, setFilterEndTime] = useState('16:00');
@@ -17,7 +19,7 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
 
   const fetchRooms = async () => {
     if (filterStartTime >= filterEndTime) {
-      alert('End time must be later than start time');
+      alert(t('endTimeLaterError'));
       return;
     }
     try {
@@ -153,7 +155,7 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
       <Container>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <Button variant="link" className="text-primary" onClick={onBack}>
-            &larr; Back to Floors
+            &larr; {t('backToFloors')}
           </Button>
           
           {currentUser?.role === 'admin' && (
@@ -173,7 +175,7 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
         <p className="text-center text-gray-600 mb-4">Room availability overview</p>
 
         <Form.Group className="mb-4 text-center">
-          <Form.Label>Select Date</Form.Label>
+          <Form.Label>{t('date')}</Form.Label>
           <Form.Control
             type="date"
             value={date}
@@ -334,18 +336,18 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
             ) : (
               <Form onSubmit={handleBookRoom}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Subject/Purpose</Form.Label>
+                  <Form.Label>{t('subjectPurpose')}</Form.Label>
                   <Form.Control
                     type="text"
                     name="purpose"
                     value={form.purpose}
                     onChange={handleFormChange}
-                    placeholder="Enter purpose"
+                    placeholder={t('enterPurpose')}
                   />
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Department</Form.Label>
+                  <Form.Label>{t('department')}</Form.Label>
                   <Form.Select
                     name="department"
                     value={form.department}
@@ -358,12 +360,12 @@ function RoomSelectionPage({ building, floor, onBack, currentUser }) {
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>Start Time</Form.Label>
+                  <Form.Label>{t('startTime')}</Form.Label>
                   <Form.Control type="time" name="startTime" value={form.startTime} onChange={handleFormChange} />
                 </Form.Group>
 
                 <Form.Group className="mb-3">
-                  <Form.Label>End Time</Form.Label>
+                  <Form.Label>{t('endTime')}</Form.Label>
                   <Form.Control type="time" name="endTime" value={form.endTime} onChange={handleFormChange} />
                 </Form.Group>
 

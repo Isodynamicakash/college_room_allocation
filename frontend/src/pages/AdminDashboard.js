@@ -1,19 +1,22 @@
 import React from 'react';
 import { Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { useTranslation } from '../contexts/LanguageContext';
 
 function AdminDashboard({ user, onLogout, onNavigateToBookings }) {
+  const { t } = useTranslation();
+  
   return (
     <Container className="mt-4">
       <Row className="mb-4">
         <Col>
-          <h2 className="text-primary">Welcome to the Admin Dashboard</h2>
+          <h2 className="text-primary">{t('welcomeAdmin')}</h2>
           <p>
-            Hello, <strong>{user.name}</strong>. Manage room bookings and admin features.
+            {t('helloAdmin', { name: user.name })}
           </p>
         </Col>
         <Col className="text-end">
           <Button variant="outline-danger" onClick={onLogout}>
-            Logout
+            {t('logout')}
           </Button>
         </Col>
       </Row>
@@ -22,12 +25,12 @@ function AdminDashboard({ user, onLogout, onNavigateToBookings }) {
         <Col md={8} lg={6} className="mb-3">
           <Card>
             <Card.Body className="text-center">
-              <Card.Title>📊 Booking Management</Card.Title>
+              <Card.Title>📊 {t('bookingManagement')}</Card.Title>
               <Card.Text>
-                View, create, and manage room bookings across buildings and floors.
+                {t('bookingManagementDesc')}
               </Card.Text>
               <Button variant="primary" size="lg" onClick={onNavigateToBookings}>
-                Open Booking Management
+                {t('openBookingManagement')}
               </Button>
             </Card.Body>
           </Card>

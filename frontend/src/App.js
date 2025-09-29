@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getBuildings } from "./utils/api";
-import { LanguageProvider } from "./contexts/LanguageContext";
+import { LanguageProvider, useTranslation } from "./contexts/LanguageContext";
 import LanguageSelector from "./components/LanguageSelector";
 
 // Import your pages
@@ -11,12 +11,13 @@ import RoomSelectionPage from "./pages/RoomSelectionPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminBookingsTable from "./pages/AdminBookingsTable";
 
-function App() {
+function AppContent() {
   const [user, setUser] = useState(null);
   const [step, setStep] = useState("landing");
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
   const [buildings, setBuildings] = useState([]);
+  const { t } = useTranslation();
 
   // Load user from localStorage on refresh
   useEffect(() => {
@@ -77,7 +78,7 @@ function App() {
   // Greeting component
   const greeting = (
     <div style={{ position: "absolute", top: 10, right: 20, fontWeight: "bold" }}>
-      Welcome, {user?.name}
+      {t('welcome')}, {user?.name}
       <button
         onClick={handleLogout}
         style={{
@@ -90,7 +91,7 @@ function App() {
           borderRadius: "4px"
         }}
       >
-        Logout
+        {t('logout')}
       </button>
     </div>
   );
@@ -177,7 +178,7 @@ function App() {
 function AppWithProvider() {
   return (
     <LanguageProvider>
-      <App />
+      <AppContent />
     </LanguageProvider>
   );
 }
